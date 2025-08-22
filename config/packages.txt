@@ -1,0 +1,21 @@
+# Every package in separate line
+
+# Base system utilities
+python3
+python3-pip
+python3-venv
+git
+fish
+mc
+parted
+htop
+
+# Network tools
+curl
+wget
+net-tools
+dropbear
+
+# Your tools
+python3-dialog
+
