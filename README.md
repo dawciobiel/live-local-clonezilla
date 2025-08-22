@@ -18,24 +18,21 @@ Custom Clonezilla Live distribution with HardClone CLI and GUI applications for 
 
 ## Building
 
-The ISO is automatically built using GitHub Actions on every push to the main branch.
+...
 
 ### Manual Build (Local)
 
 ```bash
-# Build with Docker
-docker build -t clonezilla-builder .
-docker run --rm -v $(pwd):/workspace clonezilla-builder
+#
 ```
 
 ### Build Requirements
 
-- Docker
-- Internet connection (to download Clonezilla and clone repositories)
+- ...
 
 ## Download
 
-Built ISOs are available in the GitHub Actions artifacts or releases section.
+...
 
 
 ## Usage
