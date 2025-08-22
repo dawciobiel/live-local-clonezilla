@@ -6,7 +6,7 @@ set -euo pipefail
 # ==========================
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
-WORK_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"   # katalog główny projektu
+WORK_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"   # Root folder of the project
 ROOTFS_DIR="$WORK_DIR/rootfs"
 
 # ==========================
@@ -42,16 +42,16 @@ log_debug "ROOTFS_DIR: $ROOTFS_DIR"
 # ==========================
 # CHECK DEPENDENCIES
 # ==========================
-if ! command -v proot >/dev/null 2>&1; then
-    log_error "Missing dependency: proot is not installed."
-    echo "Please install it with one of the following commands:"
-    echo "  openSUSE:   sudo zypper install proot"
-    echo "  Ubuntu/Debian: sudo apt-get install -y proot"
-    echo "  Arch/Manjaro:  sudo pacman -S proot"
-    exit 1
-else
-    log_success "Dependency check passed: proot found."
-fi
+# if ! command -v proot >/dev/null 2>&1; then
+#     log_error "Missing dependency: proot is not installed."
+#     echo "Please install it with one of the following commands:"
+#     echo "  openSUSE:   sudo zypper install proot"
+#     echo "  Ubuntu/Debian: sudo apt-get install -y proot"
+#     echo "  Arch/Manjaro:  sudo pacman -S proot"
+#     exit 1
+# else
+#     log_success "Dependency check passed: proot found."
+# fi
 
 # ==========================
 # OPTIONAL: Clean rootfs from previous build
