@@ -29,6 +29,7 @@ log_debug "Custom apps dir: $CUSTOM_APPS_DIR"
 # STEP 0: Mount pseudo-filesystems for chroot
 # ==========================
 sudo mount --bind /dev "$ROOTFS_DIR/dev" || true
+sudo mount --bind /dev/pts "$ROOTFS_DIR/dev/pts" || true
 sudo mount --bind /proc "$ROOTFS_DIR/proc" || true
 sudo mount --bind /sys "$ROOTFS_DIR/sys" || true
 
