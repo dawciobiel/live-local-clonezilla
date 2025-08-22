@@ -40,6 +40,20 @@ log_debug "WORK_DIR: $WORK_DIR"
 log_debug "ROOTFS_DIR: $ROOTFS_DIR"
 
 # ==========================
+# CHECK DEPENDENCIES
+# ==========================
+if ! command -v proot >/dev/null 2>&1; then
+    log_error "Missing dependency: proot is not installed."
+    echo "Please install it with one of the following commands:"
+    echo "  openSUSE:   sudo zypper install proot"
+    echo "  Ubuntu/Debian: sudo apt-get install -y proot"
+    echo "  Arch/Manjaro:  sudo pacman -S proot"
+    exit 1
+else
+    log_success "Dependency check passed: proot found."
+fi
+
+# ==========================
 # OPTIONAL: Clean rootfs from previous build
 # ==========================
 if [ -d "$ROOTFS_DIR" ]; then
@@ -100,19 +114,38 @@ log_info "Step 3: Customize RootFS (install packages, copy custom apps)"
 log_info "Step 3 completed."
 
 # ==========================
-# STEP 4: Setup Networking
+# STEP X: Setup Networking
 # ==========================
-log_info "Step 4: Setup Networking by isc-dhcp-client"
-log_info "Installing isc-dhcp-client..."
-proot -R "$ROOTFS_DIR" /bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y isc-dhcp-client" || log_warn "Failed to install isc-dhcp-client (non-fatal)"
-log_info "Step 4 completed."
+# log_info "Step X: Setup Networking by isc-dhcp-client"
+# log_info "Installing isc-dhcp-client..."
+#
+# # Ensure root ownership of APT directories in rootfs
+# chown -R 0:0 "$ROOTFS_DIR/var/lib/apt" "$ROOTFS_DIR/var/cache/apt"
+#
+# # Use proot with -0 to simulate root inside rootfs
+# proot -0 -R "$ROOTFS_DIR" /bin/bash -c '
+#     set -e
+#     export DEBIAN_FRONTEND=noninteractive
+#
+#     # Clean cache (non-fatal)
+#     apt-get clean || true
+#
+#     # Update package lists (non-fatal)
+#     apt-get update || echo "[WARNING] apt-get update failed, continuing..."
+#
+#     # Install package (non-fatal)
+#     apt-get install -y isc-dhcp-client || echo "[WARNING] Failed to install isc-dhcp-client (non-fatal)"
+# '
+#
+# log_info "Step X completed."
+
 
 # ==========================
-# STEP 5: Repack ISO
+# STEP 4: Repack ISO
 # ==========================
-log_info "Step 5: Repack customized ISO"
+log_info "Step 4: Repack customized ISO"
 "$WORK_DIR/build-scripts/repack-iso.sh"
-log_info "Step 5 completed."
+log_info "Step 4 completed."
 
 # ==========================
 # BUILD FINISHED

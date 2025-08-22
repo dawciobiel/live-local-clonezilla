@@ -55,7 +55,7 @@ docker run --rm -it \
     -w /mnt/rootfs \
     $DOCKER_IMAGE /bin/bash -c "
 apt-get update && \
-apt-get install -y python3-pip fish && \
+apt-get install -y python3-pip && \
 echo '[INFO] Packages installed inside Docker container'
 "
 
