@@ -16,6 +16,7 @@ source "$SCRIPT_DIR/logging.sh"
 
 # Prompt for sudo password upfront
 sudo -v
+export DEBUG=0
 
 # ==========================
 # TIMESTAMP & LOGGING

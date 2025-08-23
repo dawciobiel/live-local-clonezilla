@@ -1,5 +1,8 @@
 # Cache, Docker, Output folders
 
+# Backups
+backups/
+
 # Logs
 logs/
 *.log

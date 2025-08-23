@@ -1,0 +1,14 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# Automatically enable any ethernet interface and configure via DHCP
+allow-hotplug en*
+iface en inet dhcp
+
+allow-hotplug eth*
+iface eth inet dhcp
+
