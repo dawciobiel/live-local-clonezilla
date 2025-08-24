@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# Script: repack-iso.sh
+# Script: rebuild-iso.sh
 # Purpose:
 #   Repack customized Clonezilla-based Live ISO with BIOS (isolinux) and
 #   UEFI (GRUB) support. Builds filesystem.squashfs from ROOTFS_DIR and
@@ -13,7 +13,7 @@ set -euo pipefail
 # Resolve dirs
 # ==========================
 WORK_DIR="$(pwd)"
-EXTRACT_DIR="$WORK_DIR/artifacts/clonezilla/extracted"   # extracted base ISO tree
+EXTRACT_DIR="$WORK_DIR/artifacts/clonezilla/extracted"   # extracted ISO tree
 ROOTFS_DIR="$WORK_DIR/rootfs"                            # customized rootfs
 OUTPUT_DIR="$WORK_DIR/output/hardclone"                  # final ISO
 mkdir -p "$OUTPUT_DIR"
@@ -21,8 +21,8 @@ mkdir -p "$OUTPUT_DIR"
 # Bootloader files (outside ISO tree)
 BOOT_DIR="$WORK_DIR/boot-files"
 ISOLINUX_DIR="$BOOT_DIR/isolinux"
-GRUB_EFI="$BOOT_DIR/grubx64.efi"
-BOOTX64_EFI="$BOOT_DIR/bootx64.efi"
+GRUB_EFI="$BOOT_DIR/GRUBX64.EFI"
+BOOTX64_EFI="$BOOT_DIR/BOOTX64.EFI"
 
 # Required env vars
 : "${ISO_LABEL:?ISO_LABEL not set}"
@@ -85,10 +85,30 @@ stage_boot_files() {
     mkdir -p "$EXTRACT_DIR/isolinux"
     chmod -R u+w "$EXTRACT_DIR/isolinux" || true
     cp -av "$ISOLINUX_DIR/"* "$EXTRACT_DIR/isolinux/"
-    mkdir -p "$EXTRACT_DIR/EFI/boot"
-    cp -av "$GRUB_EFI"   "$EXTRACT_DIR/EFI/boot/grubx64.efi"
-    cp -av "$BOOTX64_EFI" "$EXTRACT_DIR/EFI/boot/bootx64.efi"
+
+    mkdir -p "$EXTRACT_DIR/EFI/BOOT"
+    cp -av "$GRUB_EFI"    "$EXTRACT_DIR/EFI/BOOT/GRUBX64.EFI"
+    cp -av "$BOOTX64_EFI" "$EXTRACT_DIR/EFI/BOOT/BOOTX64.EFI"
     log_success "Boot files staged."
+}
+
+stage_grub_cfg() {
+    log_info "Staging GRUB configuration files..."
+    local ISO_DIR="$EXTRACT_DIR"
+
+    # Ensure target dirs exist inside ISO tree
+    mkdir -p "$ISO_DIR/isolinux"
+    mkdir -p "$ISO_DIR/boot/grub"
+
+    # Copy grub.cfg from project config into ISO structure
+    cp config/grub/isolinux/grub.cfg "$ISO_DIR/isolinux/grub.cfg"
+    cp config/grub/boot/grub/grub.cfg "$ISO_DIR/boot/grub/grub.cfg"
+
+    # Set correct permissions
+    chmod 644 "$ISO_DIR/isolinux/grub.cfg"
+    chmod 644 "$ISO_DIR/boot/grub/grub.cfg"
+
+    log_success "GRUB configs staged successfully."
 }
 
 warn_if_rootfs_mounted() {
@@ -125,6 +145,7 @@ update_squashfs() {
 
 repack_iso() {
     log_info "Repacking ISO with xorriso..."
+
     xorriso -as mkisofs \
         -r -J -joliet-long -l \
         -iso-level 3 \
@@ -136,11 +157,22 @@ repack_iso() {
         -boot-load-size 4 \
         -boot-info-table \
         -eltorito-alt-boot \
-        -e EFI/boot/grubx64.efi \
+        -e boot/grub/efi.img \
         -no-emul-boot \
         -isohybrid-gpt-basdat \
+        -append_partition 2 0xef "$EXTRACT_DIR/boot/grub/efi.img" \
         "$EXTRACT_DIR"
+
     log_success "ISO repacked: $OUTPUT_ISO"
+}
+
+
+remove_wrong_files() {
+    # Temporary solution. Deleting files with the wrong name bootx64.efi and grubx64.efi
+    log_info "Removing $EXTRACT_DIR/EFI/boot/bootx64.efi"
+    sudo rm /home/dawciobiel/IdeaProjects/hardclone/live-local-clonezilla/artifacts/clonezilla/extracted/EFI/boot/bootx64.efi
+    log_info "Removing $EXTRACT_DIR/EFI/boot/grubx64.efi"
+    sudo rm /home/dawciobiel/IdeaProjects/hardclone/live-local-clonezilla/artifacts/clonezilla/extracted/EFI/boot/grubx64.efi
 }
 
 # ==========================
@@ -148,6 +180,8 @@ repack_iso() {
 # ==========================
 check_boot_files
 stage_boot_files
+stage_grub_cfg
+remove_wrong_files
 warn_if_rootfs_mounted
 update_squashfs
 repack_iso
