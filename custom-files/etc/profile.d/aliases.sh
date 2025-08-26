@@ -26,4 +26,5 @@ alias mv='mv -i'
 alias c='clear'
 
 # Hardclone CLI
-alias hardclone-cli="cd /opt/hardclone-cli;python3 hcli.py"
+alias hardclone-cli='cd /opt/hardclone-cli; python3 hcli.py'
+alias hcli='cd /opt/hardclone-cli; python3 hcli.py'
